@@ -13,7 +13,13 @@
 # List of files
 <to_be_defined>_src= $(wildcard $(<to_be_defined>_src_dir)/*.cpp)
 <to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h)
-<to_be_defined>_obj=$(notdir  $(patsubst %.cpp, %.o,$(<to_be_defined>_src)))
+<to_be_defined>_moc_candidates= $(shell grep -H Q_OBJECT $(<to_be_defined>_inc_dir)/*.h | cut -d":" -f1)
+<to_be_defined>_moc_sources= $(addprefix moc_, $(notdir $(patsubst %.h, %.cpp,$(<to_be_defined>_moc_candidates))))
+ifneq (,$(<to_be_defined>_moc_candidateses))
+$(error "Error empty moc candidates" $(<to_be_defined>_moc_sources))
+endif
+<to_be_defined>_obj=$(notdir  $(patsubst %.cpp, %.o,$(<to_be_defined>_moc_sources))) 
+<to_be_defined>_obj+=$(notdir  $(patsubst %.cpp, %.o,$(<to_be_defined>_src)))
 <to_be_defined>_infra_infos:=$(<to_be_defined>_source_dir)/infra_infos.txt
 ifeq (,$(wildcard $(<to_be_defined>_infra_infos)))
 $(error "Object <to_be_defined> doesn't contain any infra_infos.txt file : $(<to_be_defined>_infra_infos)")
@@ -25,6 +31,7 @@ endif
 
 # Flags extraction
 LDFLAGS+=$(shell get_key LDFLAGS $(<to_be_defined>_infra_infos))
+CFLAGS+=$(shell get_key CFLAGS $(<to_be_defined>_infra_infos))
 
 <to_be_defined>_list_makefile+=$(addsuffix .mk, $(<to_be_defined>_depend_list))
 ifneq (,$(<to_be_defined>_depend_list))
@@ -44,6 +51,17 @@ endif
 objects+=$(addprefix $(<to_be_defined>_obj_dir)/, $(<to_be_defined>_obj))
 
 components+=<to_be_defined>
+
+
+$(<to_be_defined>_obj_dir)/moc_%.cpp: $(<to_be_defined>_inc_dir)/%.h
+	@echo " -> Creating moc file for " $@
+	@ mkdir -p $(<to_be_defined>_obj_dir)
+	@moc $(DEFINES) $(INCPATH) $< -o $@
+
+$(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_obj_dir)/%.cpp 
+	@echo " -> Compiling generated file" $@
+	@ mkdir -p $(<to_be_defined>_obj_dir)
+	@g++ -Wall -o $@ -c $< $(CFLAGS) -I$(<to_be_defined>_inc_dir) $(<to_be_defined>_eval_result)
 
 #Generic rule to compile cpp files of this object
 $(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_src_dir)/%.cpp 
