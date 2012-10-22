@@ -12,7 +12,8 @@
 
 # List of files
 <to_be_defined>_src= $(wildcard $(<to_be_defined>_src_dir)/*.cpp)
-<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h)
+#<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h)
+<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h) $(wildcard $(<to_be_defined>_source_dir)/src/*.hpp)
 <to_be_defined>_moc_candidates= $(shell grep -H Q_OBJECT $(<to_be_defined>_inc_dir)/*.h | cut -d":" -f1)
 <to_be_defined>_moc_sources= $(addprefix moc_, $(notdir $(patsubst %.h, %.cpp,$(<to_be_defined>_moc_candidates))))
 ifneq (,$(<to_be_defined>_moc_candidateses))
@@ -34,12 +35,16 @@ LDFLAGS+=$(shell get_key LDFLAGS $(<to_be_defined>_infra_infos))
 CFLAGS+=$(shell get_key CFLAGS $(<to_be_defined>_infra_infos))
 
 <to_be_defined>_list_makefile+=$(addsuffix .mk, $(<to_be_defined>_depend_list))
+toto2:=$(filter-out $(sourced_makefile),$(addsuffix .mk, $(<to_be_defined>_depend_list)))
 ifneq (,$(<to_be_defined>_depend_list))
--include $(addsuffix .mk, $(addprefix infra/, $(<to_be_defined>_depend_list)))
+#-include $(addsuffix .mk, $(addprefix infra/, $(<to_be_defined>_depend_list)))
+-include $(addprefix infra/, $(toto2))
 endif
 
 ifeq ($(words $(<to_be_defined>_list_makefile)),$(words $(foreach a_makefile, $(<to_be_defined>_list_makefile),$(findstring $(a_makefile),$(sourced_makefile)))))
 sourced_makefile+=<to_be_defined>.mk
+toto_sourced_makefile:=$(sort $(sourced_makefile))
+sourced_makefile=$(toto_sourced_makefile)
 ifneq (,$(<to_be_defined>_dep_files))
 -include $(<to_be_defined>_dep_files)
 endif
