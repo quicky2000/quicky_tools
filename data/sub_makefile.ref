@@ -95,7 +95,7 @@ $(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_src_dir)/%.cpp
 $(<to_be_defined>_infra_dir)/%.dep : $(<to_be_defined>_src_dir)/%.cpp  $(<to_be_defined>_infra_infos) #$(addsuffix .mk, $(addprefix infra/, $(<to_be_defined>_depend_list)))
 	@ echo " -> Computing  dependancies for component <to_be_defined> : file $*.cpp"
 	@ mkdir -p $(<to_be_defined>_infra_dir)
-	@g++ -Wall -c $< $(<to_be_defined>_eval_result) -MM -o $@
+	@g++ -Wall -c $< $(<to_be_defined>_eval_result) $(CFLAGS) -MM -o $@
 	@sed -e "s,$*\.o,obj/<to_be_defined>/$*.o $@,g" -i $@
 
 $(<to_be_defined>_obj_dir): #obj
