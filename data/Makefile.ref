@@ -83,5 +83,5 @@ obj:
 
 .PHONY : clean_all
 clean_all:
-	\rm -rf $(bin_dir) $(infra_dir) $(obj_dir)
+	$(RM) -rf $(bin_dir) $(infra_dir) $(obj_dir)
 
