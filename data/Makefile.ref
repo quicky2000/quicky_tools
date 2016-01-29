@@ -23,6 +23,7 @@ sourced_makefiles:=
 bin_dir:=bin
 infra_dir:=infra
 obj_dir:=obj
+dyn_dir:=dyn
 
 #---------
 #- FLAGS -
@@ -58,6 +59,9 @@ infra/%.mk:$(QUICKY_TOOLS)/data/sub_makefile.ref
 
 bin:
 	mkdir bin
+
+dyn:
+	mkdir dyn
 
 obj:
 	mkdir obj

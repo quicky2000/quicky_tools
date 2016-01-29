@@ -25,18 +25,28 @@
 <to_be_defined>_inc_dir:=$(<to_be_defined>_source_dir)/include
 <to_be_defined>_src_dir:=$(<to_be_defined>_source_dir)/src
 <to_be_defined>_obj_dir:=$(obj_dir)/<to_be_defined>
+<to_be_defined>_dyn_dir:=
+<to_be_defined>_dyn_inc_dir:=
 <to_be_defined>_infra_dir:=$(infra_dir)/<to_be_defined>
 
 # List of files
+<to_be_defined>_y= $(wildcard $(<to_be_defined>_src_dir)/*.ypp)
+ifneq (,$(<to_be_defined>_y))
+<to_be_defined>_dyn_dir=$(dyn_dir)/<to_be_defined>
+endif
+<to_be_defined>_y_sources= $(notdir $(patsubst %.ypp, %.cpp,$(<to_be_defined>_y)))
+<to_be_defined>_y_generated_sources= $(addprefix $(<to_be_defined>_dyn_dir)/,$(notdir $(<to_be_defined>_y_sources)))
+<to_be_defined>_y_headers= $(notdir $(patsubst %.ypp, %.h,$(<to_be_defined>_y)))
 <to_be_defined>_src= $(wildcard $(<to_be_defined>_src_dir)/*.cpp)
 #<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h)
-<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h) $(wildcard $(<to_be_defined>_source_dir)/src/*.hpp)
-<to_be_defined>_moc_candidates= $(shell grep -H Q_OBJECT $(<to_be_defined>_inc_dir)/*.h | cut -d":" -f1)
+<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h) $(wildcard $(<to_be_defined>_source_dir)/src/*.hpp) $(wildcard $(<to_be_defined>_source_dir)/src/*.hh)
+<to_be_defined>_moc_candidates= $(shell grep -H Q_OBJECT $(<to_be_defined>_inc_dir)/*.h* | cut -d":" -f1)
 <to_be_defined>_moc_sources= $(addprefix moc_, $(notdir $(patsubst %.h, %.cpp,$(<to_be_defined>_moc_candidates))))
 ifneq (,$(<to_be_defined>_moc_candidateses))
 $(error "Error empty moc candidates" $(<to_be_defined>_moc_sources))
 endif
 <to_be_defined>_obj=$(notdir  $(patsubst %.cpp, %.o,$(<to_be_defined>_moc_sources))) 
+<to_be_defined>_obj+=$(notdir  $(patsubst %.cpp, %.o,$(<to_be_defined>_y_sources)))
 <to_be_defined>_obj+=$(notdir  $(patsubst %.cpp, %.o,$(<to_be_defined>_src)))
 <to_be_defined>_infra_infos:=$(<to_be_defined>_source_dir)/infra_infos.txt
 ifeq (,$(wildcard $(<to_be_defined>_infra_infos)))
@@ -67,6 +77,9 @@ ifneq (,$(<to_be_defined>_dep_files))
 endif
 endif
 <to_be_defined>_ext_inc_dir := $(<to_be_defined>_inc_dir) $(foreach var_name,$(<to_be_defined>_depend_list) ,$(value $(var_name)_ext_inc_dir))
+ifneq (,$(<to_be_defined>_dyn_dir))
+<to_be_defined>_dyn_inc_dir+=-I$(<to_be_defined>_dyn_dir)
+endif
 <to_be_defined>_eval_result := $(addprefix -I, $(<to_be_defined>_ext_inc_dir))
 
 # Adding list of object files to global list of main target
@@ -74,33 +87,49 @@ objects+=$(addprefix $(<to_be_defined>_obj_dir)/, $(<to_be_defined>_obj))
 
 components+=<to_be_defined>
 
+.SECONDARY:
+
+
+$(<to_be_defined>_dyn_dir)/%.cpp: $(<to_be_defined>_src_dir)/%.ypp
+	@echo " -> Generating Bison parser for " $@
+	@ bison -o $@ $< && ls $(<to_be_defined>_dyn_dir)/
 
 $(<to_be_defined>_obj_dir)/moc_%.cpp: $(<to_be_defined>_inc_dir)/%.h
 	@echo " -> Creating moc file for " $@
 	@ mkdir -p $(<to_be_defined>_obj_dir)
 	@moc $(DEFINES) $(INCPATH) $< -o $@
 
-$(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_obj_dir)/%.cpp 
+$(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_dyn_dir)/%.cpp $(<to_be_defined>_obj_dir)
+	@echo " -> Compiling generated file" $@
+	@ mkdir -p $(<to_be_defined>_dyn_dir)
+	@g++ -Wall -o $@ -c $< $(CFLAGS) -I$(<to_be_defined>_inc_dir) $(<to_be_defined>_eval_result) $(<to_be_defined>_dyn_inc_dir)
+
+$(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_obj_dir)/%.cpp $(<to_be_defined>_obj_dir)
 	@echo " -> Compiling generated file" $@
 	@ mkdir -p $(<to_be_defined>_obj_dir)
-	@g++ -Wall -o $@ -c $< $(CFLAGS) -I$(<to_be_defined>_inc_dir) $(<to_be_defined>_eval_result)
+	@g++ -Wall -o $@ -c $< $(CFLAGS) -I$(<to_be_defined>_inc_dir) $(<to_be_defined>_eval_result) $(<to_be_defined>_dyn_inc_dir)
 
 #Generic rule to compile cpp files of this object
-$(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_src_dir)/%.cpp 
+$(<to_be_defined>_obj_dir)/%.o : $(<to_be_defined>_src_dir)/%.cpp $(<to_be_defined>_obj_dir)
 	@echo " -> Compiling " $@
 	@ mkdir -p $(<to_be_defined>_obj_dir)
-	@g++ -Wall -o $@ -c $< $(CFLAGS) -I$(<to_be_defined>_inc_dir) $(<to_be_defined>_eval_result)
+	@g++ -Wall -o $@ -c $< $(CFLAGS) -I$(<to_be_defined>_inc_dir) $(<to_be_defined>_eval_result) $(<to_be_defined>_dyn_inc_dir)
 
 #Rule to compile dependancies
-$(<to_be_defined>_infra_dir)/%.dep : $(<to_be_defined>_src_dir)/%.cpp  $(<to_be_defined>_infra_infos) #$(addsuffix .mk, $(addprefix infra/, $(<to_be_defined>_depend_list)))
+$(<to_be_defined>_infra_dir)/%.dep : $(<to_be_defined>_src_dir)/%.cpp  $(<to_be_defined>_infra_infos)  $(<to_be_defined>_dyn_dir) $(<to_be_defined>_y_generated_sources) #$(addsuffix .mk, $(addprefix infra/, $(<to_be_defined>_depend_list)))
 	@ echo " -> Computing  dependancies for component <to_be_defined> : file $*.cpp"
 	@ mkdir -p $(<to_be_defined>_infra_dir)
-	@g++ -Wall -c $< $(<to_be_defined>_eval_result) $(CFLAGS) -MM -o $@
+	@g++ -Wall -c $< $(<to_be_defined>_eval_result) $(CFLAGS) -MM -o $@  $(<to_be_defined>_dyn_inc_dir)
 	@sed -e "s,$*\.o,obj/<to_be_defined>/$*.o $@,g" -i $@
 
 $(<to_be_defined>_obj_dir): #obj
 	@ echo " -> Preparing  obj component <to_be_defined>"
 	@mkdir -p $@
+
+$(<to_be_defined>_dyn_dir): dyn
+	@ echo " -> Preparing  dyn component <to_be_defined>"
+	@mkdir -p $@
+	@touch $@/.dummy.h
 
 $(<to_be_defined>_infra_dir): #infra
 	@ echo " -> Preparing  infra component <to_be_defined>"
