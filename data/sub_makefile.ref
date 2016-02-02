@@ -106,7 +106,7 @@ components+=<to_be_defined>
 
 $(<to_be_defined>_dyn_dir)/%.cpp: $(<to_be_defined>_src_dir)/%.ll
 	@echo " -> Generating Flex scanner for " $@
-	@ flex -o$@ $< 
+	@ flex -o$@ --header-file=$(notdir $(patsubst %.cpp, %.h,$@)) $< && mv $(notdir $(patsubst %.cpp, %.h,$@)) $(patsubst %.cpp, %.h,$@)
 
 $(<to_be_defined>_dyn_dir)/%.cpp: $(<to_be_defined>_src_dir)/%.ypp
 	@echo " -> Generating Bison parser for " $@
