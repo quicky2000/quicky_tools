@@ -53,7 +53,11 @@ endif
 <to_be_defined>_src= $(wildcard $(<to_be_defined>_src_dir)/*.cpp)
 #<to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h)
 <to_be_defined>_headers= $(wildcard $(<to_be_defined>_source_dir)/src/*.h) $(wildcard $(<to_be_defined>_source_dir)/src/*.hpp) $(wildcard $(<to_be_defined>_source_dir)/src/*.hh)
+ifeq (,$(wildcard  $(<to_be_defined>_inc_dir)/*.h*))
+<to_be_defined>_moc_candidates=
+else
 <to_be_defined>_moc_candidates= $(shell grep -H Q_OBJECT $(<to_be_defined>_inc_dir)/*.h* | cut -d":" -f1)
+endif
 <to_be_defined>_moc_sources= $(addprefix moc_, $(notdir $(patsubst %.h, %.cpp,$(<to_be_defined>_moc_candidates))))
 ifneq (,$(<to_be_defined>_moc_candidateses))
 $(error "Error empty moc candidates" $(<to_be_defined>_moc_sources))
