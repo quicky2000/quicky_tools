@@ -168,7 +168,7 @@ $(<to_be_defined>_obj_dir)/%.cu.o : $(<to_be_defined>_src_dir)/%.cu
 
 $(<to_be_defined>_obj_dir)/<to_be_defined>_cuda_link.o : $(<to_be_defined>_cuda_obj)
 	@echo " -> Linking for CUDA " $@
-	@nvcc --device-link $(NVCC_LDFLAGS) $< --output-file $@
+	@nvcc --device-link $(NVCC_LDFLAGS) $^ --output-file $@
 
 #Rule to compile dependancies
 $(<to_be_defined>_infra_dir)/%.dep : $(<to_be_defined>_src_dir)/%.cpp  $(<to_be_defined>_infra_infos)  $(<to_be_defined>_dyn_dir) $(<to_be_defined>_y_generated_sources) $(<to_be_defined>_flex_generated_sources) #$(addsuffix .mk, $(addprefix infra/, $(<to_be_defined>_depend_list)))
