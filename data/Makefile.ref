@@ -30,13 +30,21 @@ dyn_dir:=dyn
 #---------
 LDFLAGS=
 CFLAGS=-Wall -g
+SELFTEST_FLAG=-D$(shell echo <to_be_defined> | tr a-z A-Z)_SELF_TEST
 
 ifeq (library,$(MAKECMDGOALS))
 CFLAGS+= -fPIC
 endif
 
+ifeq (test,$(MAKECMDGOALS))
+CFLAGS+=$(SELFTEST_FLAG)
+endif
+
 .PHONY: all
 all : $(bin_dir)/<to_be_defined>.exe
+
+.PHONY: test
+test : $(bin_dir)/<to_be_defined>.exe
 
 .PHONY: library
 library : $(bin_dir)/lib<to_be_defined>.so
