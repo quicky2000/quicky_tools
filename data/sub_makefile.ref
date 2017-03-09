@@ -122,6 +122,12 @@ endif
 objects+=$(addprefix $(<to_be_defined>_obj_dir)/, $(<to_be_defined>_obj))
 
 components+=<to_be_defined>
+env_variables=$(shell get_key env_variables $(<to_be_defined>_infra_infos))
+env_variables_values=$(foreach var_name,$(env_variables) ,$(value $(var_name)))
+ifneq ($(words $(env_variables)), $(words $(env_variables_values)))
+env_variables_values=$(foreach var_name,$(env_variables) ,$(addsuffix =$(value $(var_name)), $(var_name)))
+$(error "Some environment variables are not defined : " $(env_variables_values))
+endif
 
 .SECONDARY:
 
