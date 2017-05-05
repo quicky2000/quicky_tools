@@ -15,6 +15,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>
 #-------------------------------------------------------------------------------
+# Object location in repository
+<to_be_defined>_source_dir:=$(shell search_object <to_be_defined>)
+<to_be_defined>_infra_infos:=$(<to_be_defined>_source_dir)/infra_infos.txt
+ifeq (,$(wildcard $(<to_be_defined>_infra_infos)))
+$(error "Object <to_be_defined> doesn't contain any infra_infos.txt file : $(<to_be_defined>_infra_infos)")
+endif
 
 objects=
 components:=
@@ -30,6 +36,7 @@ dyn_dir:=dyn
 #---------
 LDFLAGS=
 CFLAGS=-Wall -g
+CFLAGS+=$(shell get_key MAIN_CFLAGS $(<to_be_defined>_infra_infos))
 SELFTEST_FLAG=-D$(shell echo <to_be_defined> | tr a-z A-Z)_SELF_TEST
 
 ifeq (library,$(MAKECMDGOALS))
