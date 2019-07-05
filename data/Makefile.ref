@@ -35,6 +35,7 @@ dyn_dir:=dyn
 #- FLAGS -
 #---------
 LDFLAGS=
+LDFLAGS+=$(shell get_key MAIN_LDFLAGS $(<to_be_defined>_infra_infos))
 CFLAGS=-Wall -g
 CFLAGS+=$(shell get_key MAIN_CFLAGS $(<to_be_defined>_infra_infos))
 SELFTEST_FLAG=-D$(shell echo <to_be_defined> | tr a-z A-Z)_SELF_TEST
