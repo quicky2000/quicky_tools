@@ -54,7 +54,10 @@ def main(argv):
     # Get list of source files
     source_files = list()
     source_files = source_files + ([file for file in glob.glob("include/*") if -1 == file.find("~")])
-    source_files = source_files + ([file for file in glob.glob("src/*") if -1 == file.find("~") and not file.endswith("main_" + project_name + ".cpp")])
+    source_files = source_files + ([file for file in glob.glob("src/*") if -1 == file.find("~") and not file.endswith("cu") and not file.endswith("main_" + project_name + ".cpp")])
+
+    # Get list of CUDA source files
+    cuda_source_files = glob.glob("src/*.cu")
 
     # Use generic reference file to generate CMakeLists file by replacing  some
     # special strings by project information
@@ -67,6 +70,10 @@ def main(argv):
         elif -1 != line.find("<source_files>"):
             for file in source_files:
                 source_line = line.replace("<source_files>", file)
+                output_file.write(source_line)
+        elif -1 != line.find("<cuda_source_files>"):
+            for file in cuda_source_files:
+                source_line = line.replace("<cuda_source_files>", file)
                 output_file.write(source_line)
         elif -1 != line.find("<dependancies>"):
             for dependancy in infra_infos["depend"].split():

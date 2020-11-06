@@ -6,11 +6,20 @@ project(<to_be_defined> LANGUAGES CXX)
 
 set(CMAKE_VERBOSE_MAKEFILE OFF)
 set(CMAKE_CXX_STANDARD 17)
+set(ENABLE_CUDA_CODE off)
 
 set(MY_SOURCE_FILES
     <source_files>
    )
 
+if(${ENABLE_CUDA_CODE})
+    set (MY_CPP_FLAGS -DENABLE_CUDA_CODE)
+    set (MY_SOURCE_FILES ${MY_SOURCE_FILES}
+         <cuda_source_files>
+        )
+else(${ENABLE_CUDA_CODE})
+    set (MY_CPP_FLAGS -pedantic)
+endif(${ENABLE_CUDA_CODE})
 
 # List header directories in project
 set(MY_INCLUDE_DIRECTORIES
@@ -35,7 +44,7 @@ foreach(SOURCE_FILE IN ITEMS ${MY_SOURCE_FILES})
             set(CMAKE_CUDA_STANDARD 11)
             set(CMAKE_CUDA_STANDARD_REQUIRED ON)
             set(MY_CPP_FLAGS ${MY_CPP_FLAGS} -std=c++11)
-            set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS} "--ptxas-options=-v -lineinfo -arch=sm_75 -gencode=arch=compute_75,code=sm_75")
+            set(CMAKE_CUDA_FLAGS ${CMAKE_CUDA_FLAGS} "--ptxas-options=-v -lineinfo -g -G -arch=sm_75 -gencode=arch=compute_75,code=sm_75")
         endif()
     endif()
 endforeach(SOURCE_FILE)
@@ -125,7 +134,7 @@ else()
     target_compile_definitions(${PROJECT_NAME} PRIVATE -D$<UPPER_CASE:${PROJECT_NAME}>_SELF_TEST)
     message(Linked librarries ${LINKED_LIBRARIES})
     target_link_libraries(${PROJECT_NAME} ${LINKED_LIBRARIES})
-    target_compile_options(${PROJECT_NAME} PUBLIC -Wall -ansi -pedantic -g -O0 ${MY_CPP_FLAGS})
+    target_compile_options(${PROJECT_NAME} PUBLIC -Wall -ansi -g -O0 ${MY_CPP_FLAGS})
 endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${MY_INCLUDE_DIRECTORIES})
