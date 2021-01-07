@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 #      This file is part of quicky_tools
 #      Copyright (C) 2020  Julien Thevenon ( julien_thevenon at yahoo.fr )
 #
