@@ -100,6 +100,8 @@ def extract_test_info(test_path):
                     test_info.add_expected_stdout_string(value)
                 elif "expected_status" == key:
                     test_info.set_expected_status(value)
+                elif "timeout" == key:
+                    test_info.set_timeout(value)
                 else:
                     print("ERROR: Unknown key " + key + ' in line "' + line + '" ', end='')
                     print("at " + path.basename(info_file_name) + ":" + str(line_number))
